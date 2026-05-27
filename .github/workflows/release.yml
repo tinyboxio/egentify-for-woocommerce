@@ -20,6 +20,10 @@ jobs:
           # Stage the plugin contents into a directory named after the
           # plugin slug so merchants unzip directly into wp-content/plugins
           # and end up with the standard egentify-for-woocommerce/ folder.
+          # Versionless filename gives a stable latest-download URL:
+          # https://github.com/<owner>/<repo>/releases/latest/download/egentify-for-woocommerce.zip
+          # The release tag + title still carry the version, and GitHub
+          # auto-generates a versioned source-code archive per release.
           mkdir -p build/egentify-for-woocommerce
           rsync -av \
             --exclude='.git' \
@@ -30,13 +34,13 @@ jobs:
             --exclude='.DS_Store' \
             ./ build/egentify-for-woocommerce/
           cd build
-          zip -r "egentify-for-woocommerce-${GITHUB_REF_NAME}.zip" egentify-for-woocommerce
+          zip -r egentify-for-woocommerce.zip egentify-for-woocommerce
           ls -la
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/egentify-for-woocommerce-${{ github.ref_name }}.zip
+          files: build/egentify-for-woocommerce.zip
           generate_release_notes: true
           draft: false
           prerelease: false
