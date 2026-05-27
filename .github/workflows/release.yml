@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build plugin zip
+        run: |
+          # Stage the plugin contents into a directory named after the
+          # plugin slug so merchants unzip directly into wp-content/plugins
+          # and end up with the standard egentify-for-woocommerce/ folder.
+          mkdir -p build/egentify-for-woocommerce
+          rsync -av \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.gitignore' \
+            --exclude='build' \
+            --exclude='*.zip' \
+            --exclude='.DS_Store' \
+            ./ build/egentify-for-woocommerce/
+          cd build
+          zip -r "egentify-for-woocommerce-${GITHUB_REF_NAME}.zip" egentify-for-woocommerce
+          ls -la
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/egentify-for-woocommerce-${{ github.ref_name }}.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
