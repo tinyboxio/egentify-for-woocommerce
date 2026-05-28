@@ -156,7 +156,7 @@ final class Egentify_WooCommerce_Admin {
                             <?php echo esc_html__('Open Dashboard', 'egentify-for-woocommerce'); ?>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                         </a>
-                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=egentify_disconnect'), 'egentify_disconnect')); ?>" class="egentify-btn egentify-btn--danger-outline" onclick="return confirm('<?php echo esc_js(__('Are you sure you want to disconnect from Egentify?', 'egentify-for-woocommerce')); ?>');"><?php echo esc_html__('Disconnect', 'egentify-for-woocommerce'); ?></a>
+                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=egentify_disconnect'), 'egentify_disconnect')); ?>" class="egentify-btn egentify-btn--danger-outline egentify-disconnect" data-confirm="<?php echo esc_attr__('Are you sure you want to disconnect from Egentify?', 'egentify-for-woocommerce'); ?>"><?php echo esc_html__('Disconnect', 'egentify-for-woocommerce'); ?></a>
                     </div>
                 </div>
             <?php else : ?>
@@ -197,13 +197,13 @@ final class Egentify_WooCommerce_Admin {
                 <?php endif; ?>
 
                 <!-- Advanced: Manual Configuration (collapsible) -->
-                <div class="egentify-collapsible" style="margin-top: 16px;">
+                <div class="egentify-collapsible">
                     <button type="button" class="egentify-collapsible__toggle" id="egentify-toggle-manual-config">
                         <svg class="egentify-collapsible__chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                         <?php echo esc_html__('Advanced: Manual Configuration', 'egentify-for-woocommerce'); ?>
                     </button>
                 </div>
-                <div id="egentify-manual-config" class="egentify-card" style="display: none; margin-top: 8px;">
+                <div id="egentify-manual-config" class="egentify-card egentify-collapsible__panel">
                     <form method="post" action="options.php">
                         <?php settings_fields(Egentify_WooCommerce_Settings::SETTINGS_GROUP); ?>
                         <table class="form-table" role="presentation">
@@ -228,23 +228,10 @@ final class Egentify_WooCommerce_Admin {
                         <?php submit_button(__('Save Manual Settings', 'egentify-for-woocommerce')); ?>
                     </form>
                 </div>
-                <script>
-                    (function() {
-                        var toggle = document.getElementById('egentify-toggle-manual-config');
-                        var panel = document.getElementById('egentify-manual-config');
-                        if (toggle && panel) {
-                            toggle.addEventListener('click', function() {
-                                var hidden = panel.style.display === 'none';
-                                panel.style.display = hidden ? '' : 'none';
-                                toggle.classList.toggle('egentify-collapsible__toggle--open', hidden);
-                            });
-                        }
-                    }());
-                </script>
             <?php endif; ?>
 
             <!-- Common settings (shown in both connected and disconnected states) -->
-            <div class="egentify-card" style="margin-top: 24px;">
+            <div class="egentify-card egentify-card--spaced">
                 <h2 class="egentify-card__section-title"><?php echo esc_html__('Widget Settings', 'egentify-for-woocommerce'); ?></h2>
                 <form method="post" action="options.php">
                     <?php settings_fields(Egentify_WooCommerce_Settings::SETTINGS_GROUP); ?>
@@ -308,7 +295,7 @@ final class Egentify_WooCommerce_Admin {
                                     /* translators: %d: starter button slot number (1-4) */
                                     $placeholder = sprintf(__('Button %d (e.g. 📦 Track my order)', 'egentify-for-woocommerce'), $idx + 1);
                                     ?>
-                                    <input type="text" name="<?php echo esc_attr($option_key); ?>[widget_starter_buttons][]" value="<?php echo esc_attr($btn); ?>" maxlength="40" class="regular-text" placeholder="<?php echo esc_attr($placeholder); ?>" style="margin-bottom: 4px; display: block;">
+                                    <input type="text" name="<?php echo esc_attr($option_key); ?>[widget_starter_buttons][]" value="<?php echo esc_attr($btn); ?>" maxlength="40" class="regular-text egentify-starter-button" placeholder="<?php echo esc_attr($placeholder); ?>">
                                 <?php endforeach; ?>
                                 <p class="description"><?php echo esc_html__('Up to 4 quick-reply buttons shown when a customer first opens an empty chat. 40 characters each. Leave all slots blank to use the default buttons.', 'egentify-for-woocommerce'); ?></p>
                             </td>

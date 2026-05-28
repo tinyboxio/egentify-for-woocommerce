@@ -112,6 +112,15 @@
     border-color: #e2e8f0;
 }
 
+.egentify-card--spaced {
+    margin-top: 24px;
+}
+
+.egentify-starter-button {
+    display: block;
+    margin-bottom: 4px;
+}
+
 .egentify-card__header {
     display: flex;
     align-items: flex-start;
@@ -289,7 +298,20 @@
     color: #1e40af;
 }
 
-/* Collapsible toggle */
+/* Collapsible */
+.egentify-collapsible {
+    margin-top: 16px;
+}
+
+.egentify-collapsible__panel {
+    display: none;
+    margin-top: 8px;
+}
+
+.egentify-collapsible__panel--open {
+    display: block;
+}
+
 .egentify-collapsible__toggle {
     display: inline-flex;
     align-items: center;

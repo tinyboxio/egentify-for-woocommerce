@@ -211,7 +211,7 @@ final class Egentify_WooCommerce_Connect {
 
         update_option(self::CONNECT_OPTION_KEY, $connection, false);
 
-        // Collect debug trace so it can be shown as admin notice
+        // Collect a connect trace, logged via log_debug() when WP_DEBUG is on.
         $debug = array();
 
         // Generate WooCommerce REST API keys and send to Egentify.
@@ -248,10 +248,9 @@ final class Egentify_WooCommerce_Connect {
             );
         }
 
-        // Show debug trace as a separate admin notice
-        if (!empty($debug)) {
-            $this->add_debug_notice($debug);
-        }
+        // Log the connect trace for troubleshooting. Only written when WP_DEBUG
+        // is enabled; never displayed to the user.
+        $this->log_debug($debug);
 
         wp_safe_redirect(admin_url('admin.php?page=' . Egentify_WooCommerce_Settings::MENU_SLUG));
         exit;
@@ -489,17 +488,20 @@ final class Egentify_WooCommerce_Connect {
     }
 
     /**
-     * Store a debug trace as a separate admin notice (info-level).
-     * Shown once after redirect so the admin can see what happened.
+     * Log the connect trace to the PHP error log for troubleshooting.
+     * Only writes when WP_DEBUG is enabled; never shown to users.
      *
      * @param string[] $lines Debug log lines.
      */
-    private function add_debug_notice(array $lines): void {
-        set_transient(
-            'egentify_debug_notice_' . get_current_user_id(),
-            $lines,
-            120
-        );
+    private function log_debug(array $lines): void {
+        if (!defined('WP_DEBUG') || !WP_DEBUG || empty($lines)) {
+            return;
+        }
+
+        foreach ($lines as $line) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log('Egentify connect: ' . $line);
+        }
     }
 
     /**
@@ -519,19 +521,6 @@ final class Egentify_WooCommerce_Connect {
                 '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
                 esc_attr($type),
                 wp_kses($notice['message'], array('strong' => array()))
-            );
-        }
-
-        // Debug trace notice
-        $debug = get_transient('egentify_debug_notice_' . get_current_user_id());
-
-        if ($debug && is_array($debug)) {
-            delete_transient('egentify_debug_notice_' . get_current_user_id());
-
-            $escaped_lines = array_map('esc_html', $debug);
-            printf(
-                '<div class="notice notice-info is-dismissible"><p><strong>Egentify connect debug:</strong></p><pre style="background:#f6f7f7;padding:10px;font-size:12px;overflow-x:auto;margin:6px 0 0;">%s</pre></div>',
-                implode("\n", $escaped_lines) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $escaped_lines is built via array_map('esc_html', ...) directly above.
             );
         }
     }

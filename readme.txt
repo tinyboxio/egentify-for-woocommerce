@@ -4,7 +4,7 @@ Tags: woocommerce, chat, customer support, ai, helpdesk
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,11 @@ The Egentify project ID, signing secret, connection metadata, and the auto-gener
 
 == Changelog ==
 
+= 1.0.3 =
+* Add "Requires Plugins: woocommerce" header to declare the WooCommerce dependency.
+* Move inline admin JavaScript and CSS into enqueued asset files per WordPress.org guidelines.
+* Stop displaying the connect debug trace to users; it is now logged only when WP_DEBUG is enabled.
+
 = 1.0.2 =
 * Plugin header: split Plugin URI and Author URI per WordPress.org submission requirement.
 
@@ -98,6 +103,9 @@ The Egentify project ID, signing secret, connection metadata, and the auto-gener
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.0.3 =
+WordPress.org review compliance: dependency header, enqueued assets, and debug logging cleanup.
 
 = 1.0.2 =
 Header metadata fix; no functional changes.
