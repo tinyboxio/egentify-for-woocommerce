@@ -34,13 +34,18 @@ jobs:
             --exclude='.DS_Store' \
             ./ build/egentify-for-woocommerce/
           cd build
+          # Versionless zip powers the stable latest-download URL.
           zip -r egentify-for-woocommerce.zip egentify-for-woocommerce
+          # Versioned copy is self-documenting on the Releases page.
+          cp egentify-for-woocommerce.zip "egentify-for-woocommerce-${GITHUB_REF_NAME#v}.zip"
           ls -la
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/egentify-for-woocommerce.zip
+          files: |
+            build/egentify-for-woocommerce.zip
+            build/egentify-for-woocommerce-*.zip
           generate_release_notes: true
           draft: false
           prerelease: false
