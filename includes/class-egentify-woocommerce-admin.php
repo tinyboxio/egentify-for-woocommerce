@@ -215,12 +215,12 @@ final class Egentify_WooCommerce_Admin {
                                 <th scope="row"><label for="egentify-signing-secret"><?php echo esc_html__('Signing Secret', 'egentify-for-woocommerce'); ?></label></th>
                                 <td>
                                     <?php if ('constant' === $secret_source) : ?>
-                                        <input id="egentify-signing-secret" type="password" class="regular-text code" value="" placeholder="Configured via constant" autocomplete="off" disabled>
+                                        <input id="egentify-signing-secret" type="password" class="regular-text code" value="" placeholder="<?php echo esc_attr__('Configured via constant', 'egentify-for-woocommerce'); ?>" autocomplete="off" disabled>
                                         <p class="description"><?php echo esc_html__('The secret is loaded from EGENTIFY_WOOCOMMERCE_SIGNING_SECRET constant.', 'egentify-for-woocommerce'); ?></p>
                                     <?php else : ?>
-                                        <input id="egentify-signing-secret" name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[signing_secret]" type="password" class="regular-text code" value="" placeholder="Paste your shared signing secret" autocomplete="new-password">
+                                        <input id="egentify-signing-secret" name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[signing_secret]" type="password" class="regular-text code" value="" placeholder="<?php echo esc_attr__('Paste your shared signing secret', 'egentify-for-woocommerce'); ?>" autocomplete="new-password">
                                         <p class="description"><?php echo esc_html__('Leave blank to keep the current stored secret.', 'egentify-for-woocommerce'); ?></p>
-                                        <p class="description"><?php echo esc_html($this->settings->has_stored_signing_secret() ? 'A stored signing secret is configured.' : 'No stored signing secret is configured yet.'); ?></p>
+                                        <p class="description"><?php echo esc_html($this->settings->has_stored_signing_secret() ? __('A stored signing secret is configured.', 'egentify-for-woocommerce') : __('No stored signing secret is configured yet.', 'egentify-for-woocommerce')); ?></p>
                                     <?php endif; ?>
                                 </td>
                             </tr>

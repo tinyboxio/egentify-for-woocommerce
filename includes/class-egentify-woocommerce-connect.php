@@ -144,7 +144,11 @@ final class Egentify_WooCommerce_Connect {
             $error_desc = isset($_GET['error_description']) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                 ? sanitize_text_field(wp_unslash($_GET['error_description'])) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                 : sanitize_text_field(wp_unslash($_GET['error'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            $this->add_admin_notice('error', 'Egentify connection failed: ' . $error_desc);
+            $this->add_admin_notice(
+                'error',
+                /* translators: %s: error description returned by Egentify */
+                sprintf(__('Egentify connection failed: %s', 'egentify-for-woocommerce'), $error_desc)
+            );
             wp_safe_redirect(admin_url('admin.php?page=' . Egentify_WooCommerce_Settings::MENU_SLUG));
             exit;
         }
@@ -154,7 +158,7 @@ final class Egentify_WooCommerce_Connect {
         $received_state = isset($_GET['state']) ? sanitize_text_field(wp_unslash($_GET['state'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
         if (!$pending || !hash_equals($pending['state'], $received_state)) {
-            $this->add_admin_notice('error', 'Invalid or expired connect session. Please try again.');
+            $this->add_admin_notice('error', __('Invalid or expired connect session. Please try again.', 'egentify-for-woocommerce'));
             wp_safe_redirect(admin_url('admin.php?page=' . Egentify_WooCommerce_Settings::MENU_SLUG));
             exit;
         }
@@ -166,7 +170,7 @@ final class Egentify_WooCommerce_Connect {
         $code = isset($_GET['code']) ? sanitize_text_field(wp_unslash($_GET['code'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
         if ('' === $code) {
-            $this->add_admin_notice('error', 'No authorization code received. Please try again.');
+            $this->add_admin_notice('error', __('No authorization code received. Please try again.', 'egentify-for-woocommerce'));
             wp_safe_redirect(admin_url('admin.php?page=' . Egentify_WooCommerce_Settings::MENU_SLUG));
             exit;
         }
@@ -187,8 +191,12 @@ final class Egentify_WooCommerce_Connect {
 
         if (is_wp_error($response) || 200 !== wp_remote_retrieve_response_code($response)) {
             $body = json_decode(wp_remote_retrieve_body($response), true);
-            $msg = is_array($body) && !empty($body['error']) ? $body['error'] : 'Unknown error during code exchange.';
-            $this->add_admin_notice('error', 'Connection failed: ' . $msg);
+            $msg = is_array($body) && !empty($body['error']) ? $body['error'] : __('Unknown error during code exchange.', 'egentify-for-woocommerce');
+            $this->add_admin_notice(
+                'error',
+                /* translators: %s: error message returned by Egentify */
+                sprintf(__('Connection failed: %s', 'egentify-for-woocommerce'), $msg)
+            );
             wp_safe_redirect(admin_url('admin.php?page=' . Egentify_WooCommerce_Settings::MENU_SLUG));
             exit;
         }
@@ -234,7 +242,8 @@ final class Egentify_WooCommerce_Connect {
             $this->add_admin_notice(
                 'success',
                 sprintf(
-                    'Connected to <strong>%s</strong>.',
+                    /* translators: %s: connected Egentify project name (wrapped in <strong>) */
+                    __('Connected to <strong>%s</strong>.', 'egentify-for-woocommerce'),
                     esc_html($connection['project_name'])
                 )
             );
@@ -242,7 +251,8 @@ final class Egentify_WooCommerce_Connect {
             $this->add_admin_notice(
                 'success',
                 sprintf(
-                    'Connected to <strong>%s</strong>. Health check is pending — Egentify will verify your endpoints shortly.',
+                    /* translators: %s: connected Egentify project name (wrapped in <strong>) */
+                    __('Connected to <strong>%s</strong>. Health check is pending — Egentify will verify your endpoints shortly.', 'egentify-for-woocommerce'),
                     esc_html($connection['project_name'])
                 )
             );
@@ -403,12 +413,10 @@ final class Egentify_WooCommerce_Connect {
         if ($has_manual_fallback) {
             $this->add_admin_notice(
                 'success',
-                'Disconnected from Egentify. Manual configuration is still active — '
-                . 'the widget will continue working using your manually configured project ID and signing secret. '
-                . 'Clear the Advanced settings if you want to fully disable the widget.'
+                __('Disconnected from Egentify. Manual configuration is still active — the widget will continue working using your manually configured project ID and signing secret. Clear the Advanced settings if you want to fully disable the widget.', 'egentify-for-woocommerce')
             );
         } else {
-            $this->add_admin_notice('success', 'Disconnected from Egentify. The widget is now inactive.');
+            $this->add_admin_notice('success', __('Disconnected from Egentify. The widget is now inactive.', 'egentify-for-woocommerce'));
         }
 
         wp_safe_redirect(admin_url('admin.php?page=' . Egentify_WooCommerce_Settings::MENU_SLUG));
