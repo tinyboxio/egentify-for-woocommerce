@@ -26,6 +26,7 @@ final class Egentify_WooCommerce_Admin {
         $icon_path = EGENTIFY_WOOCOMMERCE_PLUGIN_DIR . 'assets/egentify-sidebar-icon.svg';
         $icon = 'dashicons-admin-comments';
         if (file_exists($icon_path)) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a bundled plugin SVG to inline as a base64 data URI is the standard approach for admin-menu icons so they inherit the admin color scheme.
             $icon = 'data:image/svg+xml;base64,' . base64_encode(file_get_contents($icon_path));
         }
 

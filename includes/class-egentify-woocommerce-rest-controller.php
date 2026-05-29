@@ -31,7 +31,7 @@ final class Egentify_WooCommerce_REST_Controller {
             array(
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'handle_widget_session'),
-                'permission_callback' => '__return_true',
+                'permission_callback' => array($this, 'allow_public_read'),
             )
         );
 
@@ -41,7 +41,7 @@ final class Egentify_WooCommerce_REST_Controller {
             array(
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'handle_product_search'),
-                'permission_callback' => '__return_true',
+                'permission_callback' => array($this, 'allow_public_read'),
                 'args' => array(
                     'q' => array(
                         'required' => true,
@@ -69,7 +69,7 @@ final class Egentify_WooCommerce_REST_Controller {
             array(
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'handle_content_search'),
-                'permission_callback' => '__return_true',
+                'permission_callback' => array($this, 'allow_public_read'),
                 'args' => array(
                     'q' => array(
                         'required' => true,
@@ -91,7 +91,7 @@ final class Egentify_WooCommerce_REST_Controller {
             array(
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'handle_content_item'),
-                'permission_callback' => '__return_true',
+                'permission_callback' => array($this, 'allow_public_read'),
                 'args' => array(
                     'id' => array(
                         'required' => true,
@@ -110,10 +110,32 @@ final class Egentify_WooCommerce_REST_Controller {
             array(
                 'methods' => WP_REST_Server::CREATABLE,
                 'callback' => array($this, 'handle_rotate_signing_secret'),
+                // Authenticated inside the handler: the request must present the
+                // matching installation_id and installation_secret (hash_equals).
                 'permission_callback' => '__return_true',
             )
         );
 
+    }
+
+    /**
+     * Permission callback for the plugin's public read endpoints.
+     *
+     * Returning true is deliberate, not an oversight:
+     *
+     * - /widget-session is called by the storefront in the visitor's browser,
+     *   so it cannot be gated on a shared secret. It is read-only and only
+     *   issues a token when a valid logged-in cookie is present.
+     * - /search/* and /content/{id} are called server-to-server by Egentify
+     *   (their URLs are never exposed to the browser) and return only
+     *   published, publicly-visible products, posts and pages — data any
+     *   visitor can already browse. Responses are cacheable, so they must not
+     *   require per-request credentials.
+     *
+     * @return true
+     */
+    public function allow_public_read() {
+        return true;
     }
 
     public function handle_widget_session(WP_REST_Request $request) {
