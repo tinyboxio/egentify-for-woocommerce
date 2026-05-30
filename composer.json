@@ -1,0 +1,33 @@
+{
+    "name": "tinyboxio/egentify-for-woocommerce",
+    "description": "AI Chatbot & Helpdesk Agent for WooCommerce. Connects your store to Egentify for AI-powered chat, order tracking, email, and ticketing.",
+    "type": "wordpress-plugin",
+    "keywords": [
+        "wordpress",
+        "wordpress-plugin",
+        "woocommerce",
+        "chatbot",
+        "ai",
+        "ai-agent",
+        "customer-support",
+        "helpdesk",
+        "live-chat"
+    ],
+    "homepage": "https://wordpress.org/plugins/egentify-for-woocommerce/",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Egentify",
+            "homepage": "https://egentify.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/tinyboxio/egentify-for-woocommerce/issues",
+        "source": "https://github.com/tinyboxio/egentify-for-woocommerce",
+        "docs": "https://wordpress.org/plugins/egentify-for-woocommerce/"
+    },
+    "require": {
+        "php": ">=7.4",
+        "composer/installers": "^1.0 || ^2.0"
+    }
+}
