@@ -2,7 +2,11 @@
 
 AI-powered customer support widget for WooCommerce. Connects your store to [Egentify](https://egentify.com) for chat, voice, and ticketing.
 
+📦 **Available on WordPress.org:** [AI Chatbot & Helpdesk Agent for WooCommerce](https://wordpress.org/plugins/egentify-for-woocommerce/)
+
 ## Install
+
+The easiest way is to install directly from the [WordPress.org plugin directory](https://wordpress.org/plugins/egentify-for-woocommerce/). To install the GitHub build manually:
 
 1. Download the latest `egentify-for-woocommerce-vX.Y.Z.zip` from the [Releases page](https://github.com/tinyboxio/egentify-for-woocommerce/releases/latest).
 2. In WordPress admin, go to **Plugins → Add New → Upload Plugin**.
