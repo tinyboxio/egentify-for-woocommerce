@@ -49,3 +49,20 @@ jobs:
           generate_release_notes: true
           draft: false
           prerelease: false
+
+  deploy-to-wordpress-org:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Commits the plugin to WordPress.org SVN trunk and creates the
+      # SVN tag matching this git tag (v prefix stripped). Files listed
+      # in .distignore stay out of SVN. Requires SVN_USERNAME and
+      # SVN_PASSWORD repository secrets; skips cleanly if they are unset.
+      - name: Deploy to WordPress.org SVN
+        if: ${{ secrets.SVN_USERNAME != '' }}
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}

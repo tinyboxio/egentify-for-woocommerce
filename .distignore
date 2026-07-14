@@ -1,0 +1,9 @@
+/.git
+/.github
+/.gitignore
+/.distignore
+/README.md
+/composer.json
+/build
+*.zip
+.DS_Store
