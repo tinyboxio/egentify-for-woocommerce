@@ -138,7 +138,7 @@ Egentify only receives the data it needs to answer a customer and manage your st
 
 = What data is stored locally in WordPress? =
 
-Just the connection details: your Egentify project ID, the security keys used to connect, and your widget settings. Orders placed with help from the chat also carry a hidden chat reference. Chat conversations are not stored on your site. They live in your Egentify account.
+Just the connection details: your Egentify project ID, the security keys used to connect, and your widget settings. Orders placed with help from the chat also carry a hidden chat reference in their order metadata. Chat conversations are not stored on your site. They live in your Egentify account.
 
 == Changelog ==
 
