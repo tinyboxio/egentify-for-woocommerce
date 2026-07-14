@@ -56,14 +56,15 @@ if ($egentify_table_exists === $egentify_api_keys_table) {
 }
 
 // Remove Egentify order meta from classic and HPOS storage.
-$egentify_meta_keys = "'_egentify_chat','_egentify_purchase_queued','_egentify_purchase_sent'";
-// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- One-time uninstall cleanup; keys are a hard-coded literal.
-$wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ({$egentify_meta_keys})");
+$egentify_meta_keys   = array('_egentify_chat', '_egentify_purchase_queued', '_egentify_purchase_sent');
+$egentify_key_holders = implode(',', array_fill(0, count($egentify_meta_keys), '%s'));
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- One-time uninstall cleanup; interpolation is %s placeholders only.
+$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ({$egentify_key_holders})", $egentify_meta_keys));
 $egentify_orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time uninstall cleanup; table existence checked first.
 if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $egentify_orders_meta_table)) === $egentify_orders_meta_table) {
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- One-time uninstall cleanup; keys are a hard-coded literal.
-    $wpdb->query("DELETE FROM {$egentify_orders_meta_table} WHERE meta_key IN ({$egentify_meta_keys})");
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- One-time uninstall cleanup; interpolation is %s placeholders only.
+    $wpdb->query($wpdb->prepare("DELETE FROM %i WHERE meta_key IN ({$egentify_key_holders})", array_merge(array($egentify_orders_meta_table), $egentify_meta_keys)));
 }
 
 // Remove any leftover user-scoped transients (connect-pending state, admin notices).
