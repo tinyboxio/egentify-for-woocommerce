@@ -66,17 +66,19 @@ final class Egentify_WooCommerce_Orders {
         }
 
         $order = wc_get_order($order_id);
-        if (!$order || !$order->get_meta(self::CHAT_META_KEY) || $order->get_meta(self::QUEUED_META_KEY)) {
+        if (!$order || !$order->get_meta(self::CHAT_META_KEY) || $order->get_meta(self::QUEUED_META_KEY) || $order->get_meta(self::SENT_META_KEY)) {
             return;
         }
 
-        $order->update_meta_data(self::QUEUED_META_KEY, gmdate('c'));
-        $order->save();
-
-        if (function_exists('as_enqueue_async_action')) {
-            as_enqueue_async_action(self::SEND_HOOK, array($order->get_id(), 1), 'egentify');
-        } else {
+        if (!function_exists('as_enqueue_async_action')) {
             $this->send_purchase_event($order->get_id(), 1);
+            return;
+        }
+
+        // Mark queued only on successful scheduling so a failure here can requeue later.
+        if (as_enqueue_async_action(self::SEND_HOOK, array($order->get_id(), 1), 'egentify')) {
+            $order->update_meta_data(self::QUEUED_META_KEY, gmdate('c'));
+            $order->save();
         }
     }
 
@@ -126,10 +128,16 @@ final class Egentify_WooCommerce_Orders {
             return;
         }
 
-        $transient = is_wp_error($response) || $status >= 500;
+        $transient = is_wp_error($response) || $status >= 500 || in_array($status, array(408, 425, 429), true);
         if ($transient && $attempt < self::MAX_ATTEMPTS && function_exists('as_schedule_single_action')) {
             $delay = 5 * MINUTE_IN_SECONDS * pow(4, $attempt - 1);
-            as_schedule_single_action(time() + $delay, self::SEND_HOOK, array($order->get_id(), $attempt + 1), 'egentify');
+            if (as_schedule_single_action(time() + $delay, self::SEND_HOOK, array($order->get_id(), $attempt + 1), 'egentify')) {
+                return;
+            }
         }
+
+        // Giving up; clear the queued flag so a later status change can requeue.
+        $order->delete_meta_data(self::QUEUED_META_KEY);
+        $order->save();
     }
 }

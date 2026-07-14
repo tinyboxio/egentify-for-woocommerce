@@ -15,6 +15,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verify tag matches plugin version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          HEADER=$(sed -n 's/^ \* Version: //p' egentify-for-woocommerce.php)
+          STABLE=$(sed -n 's/^Stable tag: //p' readme.txt)
+          [ "$HEADER" = "$VERSION" ] || { echo "Plugin Version header is '$HEADER', tag is '$VERSION'"; exit 1; }
+          [ "$STABLE" = "$VERSION" ] || { echo "readme.txt Stable tag is '$STABLE', tag is '$VERSION'"; exit 1; }
+
       - name: Build plugin zip
         run: |
           # Stage the plugin contents into a directory named after the
@@ -51,17 +59,17 @@ jobs:
           prerelease: false
 
   deploy-to-wordpress-org:
+    needs: build-and-release
     runs-on: ubuntu-latest
+    env:
+      SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Commits the plugin to WordPress.org SVN trunk and creates the
-      # SVN tag matching this git tag (v prefix stripped). Files listed
-      # in .distignore stay out of SVN. Requires SVN_USERNAME and
-      # SVN_PASSWORD repository secrets; skips cleanly if they are unset.
+      # Pushes trunk + SVN tag to WordPress.org; skips if secrets are unset.
       - name: Deploy to WordPress.org SVN
-        if: ${{ secrets.SVN_USERNAME != '' }}
+        if: ${{ env.SVN_USERNAME != '' }}
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}

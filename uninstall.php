@@ -32,6 +32,12 @@ if ($egentify_timestamp) {
 }
 wp_clear_scheduled_hook($egentify_heartbeat_hook);
 
+// Cancel any pending purchase-report actions. Action Scheduler is usually
+// not loaded during uninstall; leftover actions then no-op harmlessly.
+if (function_exists('as_unschedule_all_actions')) {
+    as_unschedule_all_actions('egentify_send_purchase_event'); // Orders::SEND_HOOK
+}
+
 global $wpdb;
 
 // Remove auto-generated WooCommerce REST API keys (read_write) created on connect.
