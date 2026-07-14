@@ -26,6 +26,9 @@ final class Egentify_WooCommerce {
     /** @var Egentify_WooCommerce_Widget */
     private $widget;
 
+    /** @var Egentify_WooCommerce_Orders */
+    private $orders;
+
     public function __construct() {
         $this->settings = new Egentify_WooCommerce_Settings();
         $this->connect = new Egentify_WooCommerce_Connect($this->settings);
@@ -34,6 +37,7 @@ final class Egentify_WooCommerce {
         $this->admin = new Egentify_WooCommerce_Admin($this->settings, $this->connect);
         $this->rest_controller = new Egentify_WooCommerce_REST_Controller($this->settings, $this->product_search, $this->content_search);
         $this->widget = new Egentify_WooCommerce_Widget($this->settings);
+        $this->orders = new Egentify_WooCommerce_Orders($this->settings);
     }
 
     public function run() {
@@ -41,5 +45,6 @@ final class Egentify_WooCommerce {
         $this->admin->register_hooks();
         $this->rest_controller->register_hooks();
         $this->widget->register_hooks();
+        $this->orders->register_hooks();
     }
 }

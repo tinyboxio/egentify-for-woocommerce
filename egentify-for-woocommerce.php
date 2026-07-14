@@ -30,6 +30,7 @@ require_once EGENTIFY_WOOCOMMERCE_PLUGIN_DIR . 'includes/class-egentify-woocomme
 require_once EGENTIFY_WOOCOMMERCE_PLUGIN_DIR . 'includes/class-egentify-woocommerce-admin.php';
 require_once EGENTIFY_WOOCOMMERCE_PLUGIN_DIR . 'includes/class-egentify-woocommerce-content-search.php';
 require_once EGENTIFY_WOOCOMMERCE_PLUGIN_DIR . 'includes/class-egentify-woocommerce-product-search.php';
+require_once EGENTIFY_WOOCOMMERCE_PLUGIN_DIR . 'includes/class-egentify-woocommerce-orders.php';
 require_once EGENTIFY_WOOCOMMERCE_PLUGIN_DIR . 'includes/class-egentify-woocommerce-rest-controller.php';
 require_once EGENTIFY_WOOCOMMERCE_PLUGIN_DIR . 'includes/class-egentify-woocommerce-widget.php';
 require_once EGENTIFY_WOOCOMMERCE_PLUGIN_DIR . 'includes/class-egentify-woocommerce.php';

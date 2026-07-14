@@ -74,7 +74,7 @@ This plugin connects your store to Egentify, a third-party AI support service op
 
 **When you connect:** the plugin completes a one-time secure handshake with Egentify (sending your store URL and a connection ID) and creates WooCommerce API keys that it sends to Egentify so the service can read and manage your store on your behalf. This includes your **orders, customers (names, addresses, and email addresses), products, and refunds**. You can revoke access anytime by clicking **Disconnect**, or by deleting the "Egentify (auto-generated)" key under WooCommerce → Settings → Advanced → REST API. Uninstalling the plugin removes it too.
 
-**While connected:** the plugin sends your widget settings when you save them, plus a weekly health check reporting your plugin, WordPress, WooCommerce, and PHP versions.
+**While connected:** the plugin sends your widget settings when you save them, plus a weekly health check reporting your plugin, WordPress, WooCommerce, and PHP versions. When a customer who used the chat completes an order, the plugin reports the order id, number, status, total, currency, and item count (no customer details) so your Egentify dashboard can show chat-attributed revenue.
 
 **When a customer chats:** their message, and any order or product details the AI looks up to answer it, are sent to Egentify. Logged-in customers are identified by a secure token so replies can be personalized.
 
