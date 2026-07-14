@@ -4,7 +4,7 @@ Tags: woocommerce, chatbot, live chat, customer support, helpdesk
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.4
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,10 +142,16 @@ Just the connection details: your Egentify project ID, the security keys used to
 
 == Changelog ==
 
+= 1.1.0 =
+* New: orders placed with help from the chat are reported to your Egentify dashboard so you can see revenue from the chat.
+
 = 1.0.4 =
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Adds chat revenue tracking to your Egentify dashboard.
 
 = 1.0.4 =
 Initial release.
