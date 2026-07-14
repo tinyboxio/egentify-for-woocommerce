@@ -56,10 +56,9 @@ final class Egentify_WooCommerce_Orders {
 
         $order->update_meta_data(self::CHAT_META_KEY, $chat_id);
 
-        // Consume the cookie so later unrelated orders are not attributed.
-        unset($_COOKIE[self::CHAT_COOKIE]);
+        // Shrink the cookie to an hour: failed payment retries keep attribution, later orders do not.
         if (!headers_sent()) {
-            setcookie(self::CHAT_COOKIE, '', time() - HOUR_IN_SECONDS, '/');
+            setcookie(self::CHAT_COOKIE, $chat_id, time() + HOUR_IN_SECONDS, '/', '', is_ssl(), false);
         }
     }
 
@@ -107,7 +106,7 @@ final class Egentify_WooCommerce_Orders {
 
         $connection = Egentify_WooCommerce_Connect::get_connection();
         if (!$connection || empty($connection['installation_secret'])) {
-            // Disconnected mid flight; clear the queued flag so a reconnect can requeue.
+            // Disconnected mid flight; clear the queued flag so a later status change can requeue.
             $order->delete_meta_data(self::QUEUED_META_KEY);
             $order->save();
             return;
