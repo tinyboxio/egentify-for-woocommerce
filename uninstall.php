@@ -56,14 +56,13 @@ if ($egentify_table_exists === $egentify_api_keys_table) {
 }
 
 // Remove Egentify order meta from classic and HPOS storage.
-$egentify_meta_keys = array('_egentify_chat', '_egentify_purchase_queued', '_egentify_purchase_sent');
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time uninstall cleanup.
-$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->postmeta} WHERE meta_key IN (%s, %s, %s)", $egentify_meta_keys));
+$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->postmeta} WHERE meta_key IN (%s, %s, %s)", '_egentify_chat', '_egentify_purchase_queued', '_egentify_purchase_sent'));
 $egentify_orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time uninstall cleanup; table existence checked first.
 if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $egentify_orders_meta_table)) === $egentify_orders_meta_table) {
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time uninstall cleanup.
-    $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE meta_key IN (%s, %s, %s)', array_merge(array($egentify_orders_meta_table), $egentify_meta_keys)));
+    $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE meta_key IN (%s, %s, %s)', $egentify_orders_meta_table, '_egentify_chat', '_egentify_purchase_queued', '_egentify_purchase_sent'));
 }
 
 // Remove any leftover user-scoped transients (connect-pending state, admin notices).
