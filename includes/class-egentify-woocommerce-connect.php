@@ -227,6 +227,8 @@ final class Egentify_WooCommerce_Connect {
         // WooCommerce APIs (orders, refunds, customers, products) directly.
         $this->generate_and_send_api_keys($connection, $debug);
 
+        do_action('egentify_woocommerce_connected');
+
         // Schedule weekly heartbeat cron
         if (!wp_next_scheduled(self::HEARTBEAT_CRON_HOOK)) {
             wp_schedule_event(time() + WEEK_IN_SECONDS, 'weekly', self::HEARTBEAT_CRON_HOOK);

@@ -31,11 +31,13 @@ if ($egentify_timestamp) {
     wp_unschedule_event($egentify_timestamp, $egentify_heartbeat_hook);
 }
 wp_clear_scheduled_hook($egentify_heartbeat_hook);
+wp_clear_scheduled_hook('egentify_requeue_unsent_orders'); // Orders::REQUEUE_HOOK WP-Cron fallback
 
 // Cancel any pending purchase-report actions. Action Scheduler is usually
 // not loaded during uninstall; leftover actions then no-op harmlessly.
 if (function_exists('as_unschedule_all_actions')) {
-    as_unschedule_all_actions('egentify_send_purchase_event'); // Orders::SEND_HOOK
+    as_unschedule_all_actions('egentify_send_purchase_event');   // Orders::SEND_HOOK
+    as_unschedule_all_actions('egentify_requeue_unsent_orders'); // Orders::REQUEUE_HOOK
 }
 
 global $wpdb;
