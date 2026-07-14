@@ -8,7 +8,7 @@ AI-powered customer support widget for WooCommerce. Connects your store to [Egen
 
 The easiest way is to install directly from the [WordPress.org plugin directory](https://wordpress.org/plugins/egentify-for-woocommerce/). To install the GitHub build manually:
 
-1. Download the latest `egentify-for-woocommerce-vX.Y.Z.zip` from the [Releases page](https://github.com/tinyboxio/egentify-for-woocommerce/releases/latest).
+1. Download [`egentify-for-woocommerce.zip`](https://github.com/tinyboxio/egentify-for-woocommerce/releases/latest/download/egentify-for-woocommerce.zip) from the latest release.
 2. In WordPress admin, go to **Plugins → Add New → Upload Plugin**.
 3. Upload the zip, install, and activate.
 4. A new **Egentify** menu item appears in the WordPress sidebar.
