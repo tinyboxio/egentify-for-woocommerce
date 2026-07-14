@@ -240,6 +240,15 @@ final class Egentify_WooCommerce_Connect {
         // First heartbeat is non-fatal — connection succeeds even if this times out.
         $health_ok = $this->send_heartbeat($debug);
 
+        // A 401 on the first heartbeat means Egentify revoked the new
+        // connection and send_heartbeat() already cleared it locally.
+        if (!$this->is_connected()) {
+            $this->add_admin_notice('error', __('Egentify rejected the connection. Please try connecting again.', 'egentify-for-woocommerce'));
+            $this->log_debug($debug);
+            wp_safe_redirect(admin_url('admin.php?page=' . Egentify_WooCommerce_Settings::MENU_SLUG));
+            exit;
+        }
+
         if (!$creds_ok) {
             $this->add_admin_notice(
                 'warning',
