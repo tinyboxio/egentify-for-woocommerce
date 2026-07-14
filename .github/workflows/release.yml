@@ -63,13 +63,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+      SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       # Pushes trunk + SVN tag to WordPress.org; skips if secrets are unset.
       - name: Deploy to WordPress.org SVN
-        if: ${{ env.SVN_USERNAME != '' }}
+        if: ${{ env.SVN_USERNAME != '' && env.SVN_PASSWORD != '' }}
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}

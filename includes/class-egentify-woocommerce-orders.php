@@ -50,8 +50,16 @@ final class Egentify_WooCommerce_Orders {
 
         $chat_id = isset($_COOKIE[self::CHAT_COOKIE]) ? sanitize_text_field(wp_unslash($_COOKIE[self::CHAT_COOKIE])) : '';
 
-        if (preg_match(self::CHAT_UUID_PATTERN, $chat_id)) {
-            $order->update_meta_data(self::CHAT_META_KEY, $chat_id);
+        if (!preg_match(self::CHAT_UUID_PATTERN, $chat_id)) {
+            return;
+        }
+
+        $order->update_meta_data(self::CHAT_META_KEY, $chat_id);
+
+        // Consume the cookie so later unrelated orders are not attributed.
+        unset($_COOKIE[self::CHAT_COOKIE]);
+        if (!headers_sent()) {
+            setcookie(self::CHAT_COOKIE, '', time() - HOUR_IN_SECONDS, '/');
         }
     }
 
@@ -87,15 +95,21 @@ final class Egentify_WooCommerce_Orders {
      * the backend dedupes on order id, so retries are safe.
      */
     public function send_purchase_event($order_id, $attempt = 1) {
-        $connection = Egentify_WooCommerce_Connect::get_connection();
         $order = $order_id ? wc_get_order($order_id) : false;
-
-        if (!$connection || empty($connection['installation_secret']) || !$order) {
+        if (!$order) {
             return;
         }
 
         $chat_id = $order->get_meta(self::CHAT_META_KEY);
         if (!$chat_id || $order->get_meta(self::SENT_META_KEY)) {
+            return;
+        }
+
+        $connection = Egentify_WooCommerce_Connect::get_connection();
+        if (!$connection || empty($connection['installation_secret'])) {
+            // Disconnected mid flight; clear the queued flag so a reconnect can requeue.
+            $order->delete_meta_data(self::QUEUED_META_KEY);
+            $order->save();
             return;
         }
 
