@@ -74,7 +74,7 @@ This plugin connects your store to Egentify, a third-party AI support service op
 
 **When you connect:** the plugin completes a one-time secure handshake with Egentify (sending your store URL and a connection ID) and creates WooCommerce API keys that it sends to Egentify so the service can read and manage your store on your behalf. This includes your **orders, customers (names, addresses, and email addresses), products, and refunds**. You can revoke access anytime by clicking **Disconnect**, or by deleting the "Egentify (auto-generated)" key under WooCommerce → Settings → Advanced → REST API. Uninstalling the plugin removes it too.
 
-**While connected:** the plugin sends your widget settings when you save them, plus a weekly health check reporting your plugin, WordPress, WooCommerce, and PHP versions. When a customer completes an order after adding products through the chat, the plugin reports the order id, number, status, total, currency, item count, and the chat reference (no customer details) so your Egentify dashboard can show revenue from the chat.
+**While connected:** the plugin sends your widget settings when you save them, plus a weekly health check reporting your plugin, WordPress, WooCommerce, and PHP versions. When a customer completes an order after adding products through the chat, or after clicking a product the chat recommended and buying that product, the plugin reports the order id, number, status, total, currency, item count, and the chat reference (no customer details) so your Egentify dashboard can show revenue from the chat.
 
 **When a customer chats:** their message, and any order or product details the AI looks up to answer it, are sent to Egentify. Logged-in customers are identified by a secure token so replies can be personalized.
 
@@ -143,7 +143,7 @@ Just the connection details: your Egentify project ID, the security keys used to
 == Changelog ==
 
 = 1.1.0 =
-* New: orders placed with help from the chat are reported to your Egentify dashboard so you can see revenue from the chat.
+* New: orders placed with help from the chat, either added to cart by the chat or bought after clicking a chat recommendation, are reported to your Egentify dashboard so you can see revenue from the chat.
 
 = 1.0.4 =
 * Initial release.

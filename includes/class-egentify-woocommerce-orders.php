@@ -10,7 +10,9 @@ if (!defined('ABSPATH')) {
  */
 final class Egentify_WooCommerce_Orders {
     public const CHAT_COOKIE = '_egentify_chat';
+    public const CLICK_COOKIE = '_egentify_chat_click';
     public const CHAT_META_KEY = '_egentify_chat';
+    public const ATTRIBUTION_META_KEY = '_egentify_attribution';
     public const SENT_META_KEY = '_egentify_purchase_sent';
     public const QUEUED_META_KEY = '_egentify_purchase_queued';
     public const SEND_HOOK = 'egentify_send_purchase_event';
@@ -124,28 +126,70 @@ final class Egentify_WooCommerce_Orders {
     }
 
     /**
-     * Copy the widget's chat cookie into hidden order meta. Runs on both
-     * classic and block checkout; the checkout flow saves the order.
+     * Copy attribution cookies into hidden order meta. Both lanes are
+     * validated against order contents; precedence is validated add,
+     * validated click, then a bare legacy add cookie.
      */
     public function stamp_order_attribution($order) {
         if (!$order instanceof WC_Order || $order->get_meta(self::CHAT_META_KEY)) {
             return;
         }
 
-        $chat_id = isset($_COOKIE[self::CHAT_COOKIE]) ? sanitize_text_field(wp_unslash($_COOKIE[self::CHAT_COOKIE])) : '';
-
-        if (!preg_match(self::CHAT_UUID_PATTERN, $chat_id)) {
+        $add = $this->parse_attribution_cookie(self::CHAT_COOKIE);
+        if ($add && $add['product_ids'] && $this->order_contains_any($order, $add['product_ids'])) {
+            $this->apply_attribution($order, $add['chat_id'], 'chat_add');
             return;
         }
 
-        $order->update_meta_data(self::CHAT_META_KEY, $chat_id);
-
-        // Consume the cookie so only this order is attributed. Payment
-        // retries keep attribution via the meta on the reused order.
-        unset($_COOKIE[self::CHAT_COOKIE]);
-        if (!headers_sent()) {
-            setcookie(self::CHAT_COOKIE, '', time() - HOUR_IN_SECONDS, '/');
+        $click = $this->parse_attribution_cookie(self::CLICK_COOKIE);
+        if ($click && $click['product_ids'] && $this->order_contains_any($order, $click['product_ids'])) {
+            $this->apply_attribution($order, $click['chat_id'], 'product_click');
+            return;
         }
+
+        if ($add && !$add['product_ids']) {
+            $this->apply_attribution($order, $add['chat_id'], 'chat_add');
+        }
+    }
+
+    /** @return array{chat_id: string, product_ids: int[]}|null product_ids empty for bare legacy values. */
+    private function parse_attribution_cookie($name) {
+        $raw = isset($_COOKIE[$name]) ? sanitize_text_field(wp_unslash($_COOKIE[$name])) : '';
+
+        if (preg_match('/^([0-9a-f-]{36}):(\d{1,20}(?:,\d{1,20}){0,15})$/i', $raw, $m) && preg_match(self::CHAT_UUID_PATTERN, $m[1])) {
+            return array('chat_id' => $m[1], 'product_ids' => array_map('intval', explode(',', $m[2])));
+        }
+        if (preg_match(self::CHAT_UUID_PATTERN, $raw)) {
+            return array('chat_id' => $raw, 'product_ids' => array());
+        }
+        return null;
+    }
+
+    private function apply_attribution(WC_Order $order, $chat_id, $type) {
+        $order->update_meta_data(self::CHAT_META_KEY, $chat_id);
+        $order->update_meta_data(self::ATTRIBUTION_META_KEY, $type);
+        $this->consume_cookie(self::CHAT_COOKIE);
+        $this->consume_cookie(self::CLICK_COOKIE);
+    }
+
+    /** Consume an attribution cookie so only one order per chat journey is credited. */
+    private function consume_cookie($name) {
+        unset($_COOKIE[$name]);
+        if (!headers_sent()) {
+            setcookie($name, '', time() - HOUR_IN_SECONDS, '/');
+        }
+    }
+
+    private function order_contains_any(WC_Order $order, array $product_ids) {
+        foreach ($order->get_items() as $item) {
+            if (!method_exists($item, 'get_product_id')) {
+                continue;
+            }
+            if (in_array((int) $item->get_product_id(), $product_ids, true) || in_array((int) $item->get_variation_id(), $product_ids, true)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -223,6 +267,7 @@ final class Egentify_WooCommerce_Orders {
                     'item_count'      => count($order->get_items()),
                     'order_number'    => (string) $order->get_order_number(),
                     'order_status'    => $order->get_status(),
+                    'attribution'     => $order->get_meta(self::ATTRIBUTION_META_KEY) ?: 'chat_add',
                 )),
                 'timeout' => 10,
             )
