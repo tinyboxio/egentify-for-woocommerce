@@ -225,7 +225,7 @@ final class Egentify_WooCommerce_Connect {
         // Generate WooCommerce REST API keys and send to Egentify.
         // This gives Egentify's commerce provider the ability to call
         // WooCommerce APIs (orders, refunds, customers, products) directly.
-        $this->generate_and_send_api_keys($connection, $debug);
+        $creds_ok = $this->generate_and_send_api_keys($connection, $debug);
 
         do_action('egentify_woocommerce_connected');
 
@@ -240,7 +240,16 @@ final class Egentify_WooCommerce_Connect {
         // First heartbeat is non-fatal — connection succeeds even if this times out.
         $health_ok = $this->send_heartbeat($debug);
 
-        if ($health_ok) {
+        if (!$creds_ok) {
+            $this->add_admin_notice(
+                'warning',
+                sprintf(
+                    /* translators: %s: connected Egentify project name (wrapped in <strong>) */
+                    __('Connected to <strong>%s</strong>, but sending store access keys to Egentify failed. Product and order lookups may not work. Disconnect and reconnect to retry.', 'egentify-for-woocommerce'),
+                    esc_html($connection['project_name'])
+                )
+            );
+        } elseif ($health_ok) {
             $this->add_admin_notice(
                 'success',
                 sprintf(
@@ -276,14 +285,16 @@ final class Egentify_WooCommerce_Connect {
      * endpoint so the commerce provider can call WooCommerce APIs directly.
      *
      * Non-fatal: if key generation or sending fails, the connection still
-     * succeeds — the user can configure keys manually in the dashboard.
+     * succeeds and the caller shows a warning; a key Egentify never received
+     * is removed rather than left active.
      *
      * @param array<string, mixed> $connection The stored connection data.
+     * @return bool Whether the keys were created and stored in Egentify.
      */
-    private function generate_and_send_api_keys(array $connection, array &$debug = array()): void {
+    private function generate_and_send_api_keys(array $connection, array &$debug = array()): bool {
         if (!function_exists('wc_api_hash') || !function_exists('wc_rand_hash')) {
             $debug[] = 'API keys: WooCommerce functions not available (wc_api_hash / wc_rand_hash)';
-            return;
+            return false;
         }
 
         global $wpdb;
@@ -299,7 +310,7 @@ final class Egentify_WooCommerce_Connect {
         $user_id = get_current_user_id();
         if (!$user_id) {
             $debug[] = 'API keys: no current user';
-            return;
+            return false;
         }
 
         $consumer_key    = 'ck_' . wc_rand_hash();
@@ -321,8 +332,9 @@ final class Egentify_WooCommerce_Connect {
 
         if (!$result) {
             $debug[] = 'API keys: DB insert failed — ' . $wpdb->last_error;
-            return;
+            return false;
         }
+        $key_id = (int) $wpdb->insert_id;
 
         $debug[] = 'API keys: created (truncated: ...' . substr($consumer_key, -7) . ')';
 
@@ -346,16 +358,21 @@ final class Egentify_WooCommerce_Connect {
             )
         );
 
-        if (is_wp_error($creds_response)) {
-            $debug[] = 'API keys: WP_Error — ' . $creds_response->get_error_message();
-        } else {
-            $creds_status = wp_remote_retrieve_response_code($creds_response);
-            if (200 === $creds_status) {
-                $debug[] = 'API keys: stored in Egentify OK';
-            } else {
-                $debug[] = 'API keys: HTTP ' . $creds_status . ' — ' . substr(wp_remote_retrieve_body($creds_response), 0, 300);
-            }
+        if (!is_wp_error($creds_response) && 200 === wp_remote_retrieve_response_code($creds_response)) {
+            $debug[] = 'API keys: stored in Egentify OK';
+            return true;
         }
+
+        $debug[] = is_wp_error($creds_response)
+            ? 'API keys: WP_Error — ' . $creds_response->get_error_message()
+            : 'API keys: HTTP ' . wp_remote_retrieve_response_code($creds_response) . ' — ' . substr(wp_remote_retrieve_body($creds_response), 0, 300);
+
+        // Egentify never received the key; remove it rather than leave an
+        // orphaned read_write credential active.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        $wpdb->delete($wpdb->prefix . 'woocommerce_api_keys', array('key_id' => $key_id), array('%d'));
+
+        return false;
     }
 
     /**
@@ -388,25 +405,7 @@ final class Egentify_WooCommerce_Connect {
             );
         }
 
-        // Remove auto-generated WooCommerce API keys
-        if (function_exists('wc_api_hash')) {
-            global $wpdb;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-            $wpdb->delete(
-                $wpdb->prefix . 'woocommerce_api_keys',
-                array('description' => 'Egentify (auto-generated)'),
-                array('%s')
-            );
-        }
-
-        // Clear connection data only. Do NOT touch the manual settings option.
-        delete_option(self::CONNECT_OPTION_KEY);
-
-        // Unschedule heartbeat cron
-        $timestamp = wp_next_scheduled(self::HEARTBEAT_CRON_HOOK);
-        if ($timestamp) {
-            wp_unschedule_event($timestamp, self::HEARTBEAT_CRON_HOOK);
-        }
+        $this->clear_local_connection();
 
         // Admin notice — state what happens next
         $settings = $this->settings->get_settings();
@@ -423,6 +422,29 @@ final class Egentify_WooCommerce_Connect {
 
         wp_safe_redirect(admin_url('admin.php?page=' . Egentify_WooCommerce_Settings::MENU_SLUG));
         exit;
+    }
+
+    /**
+     * Remove local connection state: the auto-generated API keys, stored
+     * connection, and heartbeat cron. Manual settings are left untouched.
+     */
+    private function clear_local_connection() {
+        if (function_exists('wc_api_hash')) {
+            global $wpdb;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            $wpdb->delete(
+                $wpdb->prefix . 'woocommerce_api_keys',
+                array('description' => 'Egentify (auto-generated)'),
+                array('%s')
+            );
+        }
+
+        delete_option(self::CONNECT_OPTION_KEY);
+
+        $timestamp = wp_next_scheduled(self::HEARTBEAT_CRON_HOOK);
+        if ($timestamp) {
+            wp_unschedule_event($timestamp, self::HEARTBEAT_CRON_HOOK);
+        }
     }
 
     /**
@@ -475,11 +497,7 @@ final class Egentify_WooCommerce_Connect {
 
         // 401 means installation was revoked — disconnect locally
         if (401 === $status_code) {
-            delete_option(self::CONNECT_OPTION_KEY);
-            $timestamp = wp_next_scheduled(self::HEARTBEAT_CRON_HOOK);
-            if ($timestamp) {
-                wp_unschedule_event($timestamp, self::HEARTBEAT_CRON_HOOK);
-            }
+            $this->clear_local_connection();
             return false;
         }
 
