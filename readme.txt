@@ -70,7 +70,7 @@ Online stores that want to cut response times, reduce repetitive support work, a
 
 == External services ==
 
-This plugin connects your store to Egentify, a third-party AI support service operated by Egentify, Inc. Nothing is sent anywhere until you click **Connect to Egentify** in the plugin settings.
+This plugin connects your store to Egentify, a third-party AI support service operated by Egentify, Inc. Nothing is sent anywhere until you connect the plugin to your Egentify project.
 
 **When you connect:** the plugin completes a one-time secure handshake with Egentify (sending your store URL and a connection ID) and creates WooCommerce API keys that it sends to Egentify so the service can read and manage your store on your behalf. This includes your **orders, customers (names, addresses, and email addresses), products, and refunds**. You can revoke access anytime by clicking **Disconnect**, or by deleting the "Egentify (auto-generated)" key under WooCommerce → Settings → Advanced → REST API. Uninstalling the plugin removes it too.
 
@@ -130,15 +130,15 @@ In your Egentify dashboard at [egentify.com](https://egentify.com), not in WordP
 
 = How do I disconnect? =
 
-Click **Disconnect** in the connected state of the Egentify admin page. This removes the stored signing secret and API keys. The widget stops loading.
+Click **Disconnect** in the connected state of the Egentify admin page. This removes the stored signing secret and API keys. The widget stops loading unless manual credentials are saved in Advanced settings.
 
 = Is my customers' data safe? =
 
-Egentify only receives the data it needs to answer a customer and manage your store, and the plugin sends nothing until you connect. Requests between your store and Egentify are signed, you can revoke access at any time with one click, and conversation data lives in your Egentify account rather than on your site. See the External Services section above for the full breakdown of what is shared and when.
+Egentify only receives the data it needs to answer a customer and manage your store, and the plugin sends nothing until you connect it to your project. Requests between your store and Egentify are signed, you can revoke access at any time with one click, and conversation data lives in your Egentify account rather than on your site. See the External Services section above for the full breakdown of what is shared and when.
 
 = What data is stored locally in WordPress? =
 
-Just the connection details: your Egentify project ID, the security keys used to connect, and your widget settings. Orders placed with help from the chat also carry a hidden chat reference in their order metadata. When the chat adds a product to the cart, it sets a small cookie in the customer's browser for up to 14 days so the order can be linked to the conversation. Chat conversations are not stored in WordPress. They live in your Egentify account.
+Just the connection details: your Egentify project ID, the security keys used to connect, and your widget settings. Orders placed with help from the chat also carry a hidden chat reference in their order metadata. The chat sets small cookies in the customer's browser for up to 14 days so orders can be linked to the conversation. Chat conversations are not stored in WordPress. They live in your Egentify account.
 
 == Changelog ==
 
