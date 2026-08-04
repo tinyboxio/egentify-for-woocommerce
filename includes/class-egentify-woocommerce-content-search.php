@@ -157,6 +157,18 @@ final class Egentify_WooCommerce_Content_Search {
             $this->add_candidate($candidates, $post_id, 'title_contains_seed', 24);
         }
 
+        // Second pass with the folded query: accent-sensitive or binary
+        // collations won't LIKE-match variant spellings of the raw query.
+        $normalized_query = $query_profile['normalizedQuery'];
+        if ('' !== $normalized_query && $normalized_query !== mb_strtolower(trim($query))) {
+            $normalized_matches = $this->find_posts_by_title_all_modes($normalized_query, $types, $limit);
+            foreach (array('exact' => 56, 'prefix' => 40, 'contains' => 24) as $mode => $seed) {
+                foreach ($normalized_matches[$mode] as $post_id) {
+                    $this->add_candidate($candidates, $post_id, 'title_' . $mode . '_seed', $seed);
+                }
+            }
+        }
+
         if ('' !== $slug_query) {
             $slug_matches = $this->find_posts_by_slug_all_modes($slug_query, $types, $limit);
             foreach ($slug_matches['exact'] as $post_id) {
@@ -1137,7 +1149,15 @@ final class Egentify_WooCommerce_Content_Search {
     }
 
     private function normalize_text($value) {
-        $value = remove_accents(wp_strip_all_tags((string) $value));
+        $value = (string) $value;
+        // Precompose (NFC) so decomposed input hits the fold table below.
+        if (class_exists('Normalizer')) {
+            $normalized = Normalizer::normalize($value, Normalizer::FORM_C);
+            if (false !== $normalized && null !== $normalized) {
+                $value = $normalized;
+            }
+        }
+        $value = remove_accents(wp_strip_all_tags($value));
         $value = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
         // remove_accents only transliterates Latin. Fold same-word spelling
         // variants per script: Greek accents + final sigma, Russian yo,
@@ -1340,6 +1360,11 @@ final class Egentify_WooCommerce_Content_Search {
         }
 
         if (ctype_digit($token) || in_array($token, $this->get_short_meaningful_tokens(), true)) {
+            return true;
+        }
+
+        // A single Han ideograph is a complete word (e.g. 茶).
+        if (preg_match('/^[\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}]$/u', $token)) {
             return true;
         }
 
