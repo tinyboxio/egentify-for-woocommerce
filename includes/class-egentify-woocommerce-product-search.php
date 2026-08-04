@@ -138,9 +138,6 @@ final class Egentify_WooCommerce_Product_Search {
 
         // Second pass with the folded query: accent-sensitive or binary
         // collations won't LIKE-match variant spellings of the raw query.
-        // Known limit: variant spellings stored in the DB itself (e.g. Ёлка
-        // queried as елка) still miss on binary collations; folding the DB
-        // side needs a shadow column and is deliberately out of scope.
         $normalized_query = $query_profile['normalizedQuery'];
         if ('' !== $normalized_query && $normalized_query !== mb_strtolower(trim($query))) {
             $normalized_matches = $this->find_products_by_title_all_modes($normalized_query, $limit);
@@ -1149,15 +1146,7 @@ final class Egentify_WooCommerce_Product_Search {
     }
 
     private function normalize_text($value) {
-        $value = (string) $value;
-        // Precompose (NFC) so decomposed input hits the fold table below.
-        if (class_exists('Normalizer')) {
-            $normalized = Normalizer::normalize($value, Normalizer::FORM_C);
-            if (false !== $normalized && null !== $normalized) {
-                $value = $normalized;
-            }
-        }
-        $value = remove_accents(wp_strip_all_tags($value));
+        $value = remove_accents(wp_strip_all_tags((string) $value));
         $value = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
         // remove_accents only transliterates Latin. Fold same-word spelling
         // variants per script: Greek accents + final sigma, Russian yo,
@@ -1170,6 +1159,14 @@ final class Egentify_WooCommerce_Product_Search {
             'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ى' => 'ي', 'ة' => 'ه',
         ));
         $value = str_replace(array("'", '`', '’'), '', $value);
+        // Decompose so remaining accents, polytonic Greek included, fall to
+        // the combining-mark strip below.
+        if (class_exists('Normalizer')) {
+            $decomposed = Normalizer::normalize($value, Normalizer::FORM_D);
+            if (false !== $decomposed) {
+                $value = $decomposed;
+            }
+        }
         // Strip optional diacritics (Hebrew niqqud, Arabic tashkeel), Arabic
         // tatweel, and combining accents (covers decomposed input without intl).
         $value = preg_replace('/[\x{0300}-\x{036F}\x{05B0}-\x{05C7}\x{064B}-\x{0652}\x{0670}\x{0640}]/u', '', $value);
@@ -1441,8 +1438,8 @@ final class Egentify_WooCommerce_Product_Search {
             return true;
         }
 
-        // A single Han ideograph is a complete word (e.g. 茶).
-        if (preg_match('/^[\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}]$/u', $token)) {
+        // A single Han ideograph is a complete word.
+        if (preg_match('/^[\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}\x{20000}-\x{3FFFF}]$/u', $token)) {
             return true;
         }
 
@@ -1458,8 +1455,8 @@ final class Egentify_WooCommerce_Product_Search {
             return true;
         }
 
-        // A single Han ideograph is a complete word (e.g. 茶).
-        if (preg_match('/^[\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}]$/u', $token)) {
+        // A single Han ideograph is a complete word.
+        if (preg_match('/^[\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}\x{20000}-\x{3FFFF}]$/u', $token)) {
             return true;
         }
 
