@@ -143,7 +143,7 @@ Just the connection details: your Egentify project ID, the security keys used to
 == Changelog ==
 
 = 1.1.1 =
-* Fixed: product and content search now work in Greek and other non-Latin languages. Searches also match with or without accents.
+* Fixed: product and content search now work in Greek, Russian, Hebrew, Arabic, and other non-Latin languages. Searches match with or without accents and letterform variants.
 
 = 1.1.0 =
 * New: orders placed with help from the chat, either added to cart by the chat or bought after clicking a chat recommendation, are reported to your Egentify dashboard so you can see revenue from the chat.

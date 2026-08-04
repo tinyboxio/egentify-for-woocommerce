@@ -1139,10 +1139,15 @@ final class Egentify_WooCommerce_Content_Search {
     private function normalize_text($value) {
         $value = remove_accents(wp_strip_all_tags((string) $value));
         $value = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
-        // remove_accents only transliterates Latin; fold Greek accents + final sigma.
+        // remove_accents only transliterates Latin. Fold same-word spelling
+        // variants per script: Greek accents + final sigma, Russian yo,
+        // Hebrew final letterforms, Arabic hamza carriers.
         $value = strtr($value, array(
             'ά' => 'α', 'έ' => 'ε', 'ή' => 'η', 'ί' => 'ι', 'ό' => 'ο', 'ύ' => 'υ', 'ώ' => 'ω',
             'ϊ' => 'ι', 'ϋ' => 'υ', 'ΐ' => 'ι', 'ΰ' => 'υ', 'ς' => 'σ',
+            'ё' => 'е',
+            'ך' => 'כ', 'ם' => 'מ', 'ן' => 'נ', 'ף' => 'פ', 'ץ' => 'צ',
+            'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ى' => 'ي', 'ة' => 'ه',
         ));
         $value = str_replace(array("'", '`', '’'), '', $value);
         $value = preg_replace('/[^\p{L}\p{N}\/\-\._ ]+/u', ' ', $value);
