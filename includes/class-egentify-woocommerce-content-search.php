@@ -1155,7 +1155,9 @@ final class Egentify_WooCommerce_Content_Search {
     }
 
     private function normalize_text($value) {
-        $value = remove_accents(wp_strip_all_tags((string) $value));
+        // Invalid UTF-8 makes the /u patterns below return null.
+        $value = wp_check_invalid_utf8((string) $value, true);
+        $value = remove_accents(wp_strip_all_tags($value));
         $value = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
         // remove_accents only transliterates Latin. Fold same-word spelling
         // variants per script: Greek accents + final sigma, Russian yo,
