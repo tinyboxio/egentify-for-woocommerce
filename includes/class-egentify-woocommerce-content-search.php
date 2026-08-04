@@ -164,7 +164,7 @@ final class Egentify_WooCommerce_Content_Search {
             $normalized_matches = $this->find_posts_by_title_all_modes($normalized_query, $types, $limit);
             foreach (array('exact' => 56, 'prefix' => 40, 'contains' => 24) as $mode => $seed) {
                 foreach ($normalized_matches[$mode] as $post_id) {
-                    $this->add_candidate($candidates, $post_id, 'title_' . $mode . '_seed', $seed);
+                    $this->add_candidate($candidates, $post_id, 'title_' . $mode . '_seed', $seed, true);
                 }
             }
         }
@@ -218,7 +218,7 @@ final class Egentify_WooCommerce_Content_Search {
         return $candidates;
     }
 
-    private function add_candidate(array &$candidates, $post_id, $reason, $seed_score) {
+    private function add_candidate(array &$candidates, $post_id, $reason, $seed_score, $once = false) {
         $post_id = (int) $post_id;
         if ($post_id < 1) {
             return;
@@ -231,11 +231,16 @@ final class Egentify_WooCommerce_Content_Search {
             );
         }
 
-        // Score once per reason: the folded second pass can re-find the same
-        // rows for the same reason on accent-insensitive collations.
+        // The folded second pass re-finds the same rows for the same reason
+        // on accent-insensitive collations; it must not double the score.
+        if ($once && in_array($reason, $candidates[$post_id]['matchedOn'], true)) {
+            return;
+        }
+
+        $candidates[$post_id]['seedScore'] += (int) $seed_score;
+
         if (!in_array($reason, $candidates[$post_id]['matchedOn'], true)) {
             $candidates[$post_id]['matchedOn'][] = $reason;
-            $candidates[$post_id]['seedScore'] += (int) $seed_score;
         }
     }
 
