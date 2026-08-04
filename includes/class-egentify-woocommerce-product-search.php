@@ -1152,7 +1152,10 @@ final class Egentify_WooCommerce_Product_Search {
 
     private function normalize_text($value) {
         // Invalid UTF-8 makes the /u patterns below return null.
-        $value = wp_check_invalid_utf8((string) $value, true);
+        $value = (string) $value;
+        if (!preg_match('//u', $value)) {
+            $value = function_exists('mb_convert_encoding') ? (string) mb_convert_encoding($value, 'UTF-8', 'UTF-8') : '';
+        }
         $value = remove_accents(wp_strip_all_tags($value));
         $value = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
         // remove_accents only transliterates Latin. Fold same-word spelling
