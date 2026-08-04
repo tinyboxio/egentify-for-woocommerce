@@ -1150,14 +1150,17 @@ final class Egentify_WooCommerce_Content_Search {
             'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ى' => 'ي', 'ة' => 'ه',
         ));
         $value = str_replace(array("'", '`', '’'), '', $value);
-        $value = preg_replace('/[^\p{L}\p{N}\/\-\._ ]+/u', ' ', $value);
+        // Strip optional diacritics (Hebrew niqqud, Arabic tashkeel) and
+        // Arabic tatweel; queries are typed without them.
+        $value = preg_replace('/[\x{05B0}-\x{05C7}\x{064B}-\x{0652}\x{0670}\x{0640}]/u', '', $value);
+        $value = preg_replace('/[^\p{L}\p{M}\p{N}\/\-\._ ]+/u', ' ', $value);
         $value = preg_replace('/\s+/u', ' ', (string) $value);
 
         return trim((string) $value);
     }
 
     private function extract_raw_tokens($value) {
-        preg_match_all('/[\p{L}\p{N}]+(?:[-\/_\.][\p{L}\p{N}]+)*/u', (string) $value, $matches);
+        preg_match_all('/[\p{L}\p{M}\p{N}]+(?:[-\/_\.][\p{L}\p{M}\p{N}]+)*/u', (string) $value, $matches);
         $tokens = isset($matches[0]) && is_array($matches[0]) ? $matches[0] : array();
 
         return array_values(array_filter(array_map('strval', $tokens)));
@@ -1422,7 +1425,7 @@ final class Egentify_WooCommerce_Content_Search {
     }
 
     private function compact_token($token) {
-        return preg_replace('/[^\p{L}\p{N}]+/u', '', (string) $token);
+        return preg_replace('/[^\p{L}\p{M}\p{N}]+/u', '', (string) $token);
     }
 
     private function text_contains_phrase($text, $phrase) {
