@@ -138,6 +138,9 @@ final class Egentify_WooCommerce_Product_Search {
 
         // Second pass with the folded query: accent-sensitive or binary
         // collations won't LIKE-match variant spellings of the raw query.
+        // Known limit: variant spellings stored in the DB itself (e.g. Ёлка
+        // queried as елка) still miss on binary collations; folding the DB
+        // side needs a shadow column and is deliberately out of scope.
         $normalized_query = $query_profile['normalizedQuery'];
         if ('' !== $normalized_query && $normalized_query !== mb_strtolower(trim($query))) {
             $normalized_matches = $this->find_products_by_title_all_modes($normalized_query, $limit);
@@ -187,10 +190,11 @@ final class Egentify_WooCommerce_Product_Search {
             );
         }
 
-        $candidates[$product_id]['seedScore'] += (int) $seed_score;
-
+        // Score once per reason: the folded second pass can re-find the same
+        // rows for the same reason on accent-insensitive collations.
         if (!in_array($reason, $candidates[$product_id]['matchedOn'], true)) {
             $candidates[$product_id]['matchedOn'][] = $reason;
+            $candidates[$product_id]['seedScore'] += (int) $seed_score;
         }
     }
 
@@ -1166,9 +1170,9 @@ final class Egentify_WooCommerce_Product_Search {
             'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ى' => 'ي', 'ة' => 'ه',
         ));
         $value = str_replace(array("'", '`', '’'), '', $value);
-        // Strip optional diacritics (Hebrew niqqud, Arabic tashkeel) and
-        // Arabic tatweel; queries are typed without them.
-        $value = preg_replace('/[\x{05B0}-\x{05C7}\x{064B}-\x{0652}\x{0670}\x{0640}]/u', '', $value);
+        // Strip optional diacritics (Hebrew niqqud, Arabic tashkeel), Arabic
+        // tatweel, and combining accents (covers decomposed input without intl).
+        $value = preg_replace('/[\x{0300}-\x{036F}\x{05B0}-\x{05C7}\x{064B}-\x{0652}\x{0670}\x{0640}]/u', '', $value);
         $value = preg_replace('/[^\p{L}\p{M}\p{N}\/\-\._ ]+/u', ' ', $value);
         $value = preg_replace('/\s+/u', ' ', (string) $value);
 
@@ -1451,6 +1455,11 @@ final class Egentify_WooCommerce_Product_Search {
         }
 
         if (ctype_digit($token) || $this->looks_like_identifier($token)) {
+            return true;
+        }
+
+        // A single Han ideograph is a complete word (e.g. 茶).
+        if (preg_match('/^[\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}]$/u', $token)) {
             return true;
         }
 
