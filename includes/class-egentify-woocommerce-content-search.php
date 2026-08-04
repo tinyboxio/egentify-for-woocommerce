@@ -1138,16 +1138,21 @@ final class Egentify_WooCommerce_Content_Search {
 
     private function normalize_text($value) {
         $value = remove_accents(wp_strip_all_tags((string) $value));
-        $value = strtolower($value);
+        $value = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
+        // remove_accents only transliterates Latin; fold Greek accents + final sigma.
+        $value = strtr($value, array(
+            'ά' => 'α', 'έ' => 'ε', 'ή' => 'η', 'ί' => 'ι', 'ό' => 'ο', 'ύ' => 'υ', 'ώ' => 'ω',
+            'ϊ' => 'ι', 'ϋ' => 'υ', 'ΐ' => 'ι', 'ΰ' => 'υ', 'ς' => 'σ',
+        ));
         $value = str_replace(array("'", '`', '’'), '', $value);
-        $value = preg_replace('/[^a-z0-9\/\-\._ ]+/i', ' ', $value);
-        $value = preg_replace('/\s+/', ' ', (string) $value);
+        $value = preg_replace('/[^\p{L}\p{N}\/\-\._ ]+/u', ' ', $value);
+        $value = preg_replace('/\s+/u', ' ', (string) $value);
 
         return trim((string) $value);
     }
 
     private function extract_raw_tokens($value) {
-        preg_match_all('/[a-z0-9]+(?:[-\/_\.][a-z0-9]+)*/i', (string) $value, $matches);
+        preg_match_all('/[\p{L}\p{N}]+(?:[-\/_\.][\p{L}\p{N}]+)*/u', (string) $value, $matches);
         $tokens = isset($matches[0]) && is_array($matches[0]) ? $matches[0] : array();
 
         return array_values(array_filter(array_map('strval', $tokens)));
@@ -1330,7 +1335,7 @@ final class Egentify_WooCommerce_Content_Search {
             return true;
         }
 
-        return strlen($token) >= 2;
+        return (function_exists('mb_strlen') ? mb_strlen($token, 'UTF-8') : strlen($token)) >= 2;
     }
 
     private function should_use_as_seed_term($token) {
@@ -1342,7 +1347,7 @@ final class Egentify_WooCommerce_Content_Search {
             return true;
         }
 
-        return strlen($token) >= 2;
+        return (function_exists('mb_strlen') ? mb_strlen($token, 'UTF-8') : strlen($token)) >= 2;
     }
 
     private function get_ignored_tokens() {
@@ -1412,7 +1417,7 @@ final class Egentify_WooCommerce_Content_Search {
     }
 
     private function compact_token($token) {
-        return preg_replace('/[^a-z0-9]+/i', '', (string) $token);
+        return preg_replace('/[^\p{L}\p{N}]+/u', '', (string) $token);
     }
 
     private function text_contains_phrase($text, $phrase) {

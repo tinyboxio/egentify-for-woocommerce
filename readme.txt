@@ -4,7 +4,7 @@ Tags: woocommerce, chatbot, live chat, customer support, helpdesk
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -141,6 +141,9 @@ Egentify only receives the data it needs to answer a customer and manage your st
 Just the connection details: your Egentify project ID, the security keys used to connect, and your widget settings. Orders placed with help from the chat also carry a hidden chat reference in their order metadata. The chat sets small cookies in the customer's browser for up to 14 days so orders can be linked to the conversation. Chat conversations are not stored in WordPress. They live in your Egentify account.
 
 == Changelog ==
+
+= 1.1.1 =
+* Fixed: product and content search now work in Greek and other non-Latin languages. Searches also match with or without accents.
 
 = 1.1.0 =
 * New: orders placed with help from the chat, either added to cart by the chat or bought after clicking a chat recommendation, are reported to your Egentify dashboard so you can see revenue from the chat.
