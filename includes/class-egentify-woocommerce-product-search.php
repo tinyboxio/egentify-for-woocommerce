@@ -137,7 +137,7 @@ final class Egentify_WooCommerce_Product_Search {
         }
 
         // Second pass with the folded query: accent-sensitive or binary
-        // collations won't LIKE-match variant spellings of the raw query.
+        // collations won't LIKE-match query-side variant spellings.
         $normalized_query = $query_profile['normalizedQuery'];
         if ('' !== $normalized_query && $normalized_query !== mb_strtolower(trim($query))) {
             $normalized_matches = $this->find_products_by_title_all_modes($normalized_query, $limit);
@@ -1159,11 +1159,19 @@ final class Egentify_WooCommerce_Product_Search {
             'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ى' => 'ي', 'ة' => 'ه',
         ));
         $value = str_replace(array("'", '`', '’'), '', $value);
-        // Decompose so remaining accents, polytonic Greek included, fall to
-        // the combining-mark strip below.
+        // Decompose polytonic Greek so its accents fall to the strip below.
+        // Scoped to that block: a global decompose would fold distinct
+        // letters like Cyrillic й.
         if (class_exists('Normalizer')) {
-            $decomposed = Normalizer::normalize($value, Normalizer::FORM_D);
-            if (false !== $decomposed) {
+            $decomposed = preg_replace_callback(
+                '/[\x{1F00}-\x{1FFF}]+/u',
+                static function ($match) {
+                    $form = Normalizer::normalize($match[0], Normalizer::FORM_D);
+                    return false === $form ? $match[0] : $form;
+                },
+                $value
+            );
+            if (null !== $decomposed) {
                 $value = $decomposed;
             }
         }
