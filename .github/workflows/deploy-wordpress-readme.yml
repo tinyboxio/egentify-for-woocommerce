@@ -20,6 +20,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Subversion
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes subversion
+
       - name: Update WordPress.org readmes
         shell: bash
         run: |
