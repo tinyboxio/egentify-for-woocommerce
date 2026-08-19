@@ -14,6 +14,8 @@ AI chatbot, live chat, and help desk for WooCommerce. Answers product questions,
 
 **Turn your WooCommerce store into a 24/7 support team that never sleeps.** Egentify adds an AI customer support agent (an AI chatbot) to your storefront that answers product questions, tracks orders, and resolves common issues in plain language, using your real products, pages, and policies so its answers stay accurate.
 
+https://www.youtube.com/watch?v=0Om1auAoTHU
+
 Today's shoppers expect instant answers, and when they have to wait, they leave. Egentify replies in seconds, day or night, so customers get help the moment they need it and your team stops drowning in the same repetitive questions. The result is happier customers, faster resolutions, and fewer lost sales.
 
 And you are always in control. From your Egentify dashboard you can watch live chats as they happen, jump in to take over any conversation, reply to customers yourself, and manage support tickets, all in one place. The AI handles the routine, so you can focus on the conversations that matter.
