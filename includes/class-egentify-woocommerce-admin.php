@@ -302,6 +302,46 @@ final class Egentify_WooCommerce_Admin {
                             </td>
                         </tr>
                         <tr>
+                            <th scope="row"><?php echo esc_html__('Shine Effect', 'egentify-for-woocommerce'); ?></th>
+                            <td>
+                                <input type="hidden" name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[widget_shine_enabled]" value="0">
+                                <label><input name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[widget_shine_enabled]" type="checkbox" value="1" <?php checked($settings['widget_shine_enabled'], '1'); ?>> <?php echo esc_html__('Show the sweeping shine on the chat launcher.', 'egentify-for-woocommerce'); ?></label>
+                                <p class="description"><?php echo esc_html__('Disabled for visitors who prefer reduced motion.', 'egentify-for-woocommerce'); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php echo esc_html__('Show Tooltips', 'egentify-for-woocommerce'); ?></th>
+                            <td>
+                                <input type="hidden" name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[widget_tooltip_enabled]" value="0">
+                                <label><input name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[widget_tooltip_enabled]" type="checkbox" value="1" <?php checked($settings['widget_tooltip_enabled'], '1'); ?>> <?php echo esc_html__('Show a short message beside the chat launcher.', 'egentify-for-woocommerce'); ?></label>
+                                <p class="description"><?php echo esc_html__('Turning this off keeps your saved text. Leave fields blank for the default wording.', 'egentify-for-woocommerce'); ?></p>
+                            </td>
+                        </tr>
+                        <?php
+                        $tooltip_pages = array(
+                            'home' => array(__('Home', 'egentify-for-woocommerce'), '👋 Need a hand?', 'Shop, track orders & more'),
+                            'category' => array(__('Categories', 'egentify-for-woocommerce'), '🤔 Hard to choose?', "I'll help you pick one"),
+                            'product' => array(__('Products', 'egentify-for-woocommerce'), '✨ Great selection!', 'Ask me anything about it'),
+                            'cart' => array(__('Cart/checkout', 'egentify-for-woocommerce'), '💬 Any last doubts?', "I'll help you finish up"),
+                            'fallback' => array(__('Other pages', 'egentify-for-woocommerce'), '👋 Need a hand?', 'Shop, track orders & more'),
+                        );
+                        foreach ($tooltip_pages as $page => $tooltip) :
+                            $heading_key = 'widget_tooltip_' . $page . '_heading';
+                            $message_key = 'widget_tooltip_' . $page . '_message';
+                            ?>
+                            <tr>
+                                <th scope="row"><?php echo esc_html($tooltip[0]); ?></th>
+                                <td>
+                                    <label for="egentify-tooltip-<?php echo esc_attr($page); ?>-heading"><?php echo esc_html__('Heading', 'egentify-for-woocommerce'); ?></label><br>
+                                    <input id="egentify-tooltip-<?php echo esc_attr($page); ?>-heading" name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[<?php echo esc_attr($heading_key); ?>]" type="text" class="regular-text" data-tooltip-limit="40" value="<?php echo esc_attr($settings[$heading_key]); ?>" placeholder="<?php echo esc_attr($tooltip[1]); ?>">
+                                    <p class="description"><?php echo esc_html__('Max 40 characters. Leave blank for the default.', 'egentify-for-woocommerce'); ?></p>
+                                    <label for="egentify-tooltip-<?php echo esc_attr($page); ?>-message"><?php echo esc_html__('Message', 'egentify-for-woocommerce'); ?></label><br>
+                                    <input id="egentify-tooltip-<?php echo esc_attr($page); ?>-message" name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[<?php echo esc_attr($message_key); ?>]" type="text" class="large-text" data-tooltip-limit="100" value="<?php echo esc_attr($settings[$message_key]); ?>" placeholder="<?php echo esc_attr($tooltip[2]); ?>">
+                                    <p class="description"><?php echo esc_html__('Max 100 characters. Leave blank for the default.', 'egentify-for-woocommerce'); ?></p>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <tr>
                             <th scope="row"><?php echo esc_html__('Auto Inject Widget', 'egentify-for-woocommerce'); ?></th>
                             <td><label><input name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[auto_inject]" type="checkbox" value="1" <?php checked($settings['auto_inject'], '1'); ?>> <?php echo esc_html__('Render the widget automatically in wp_footer.', 'egentify-for-woocommerce'); ?></label></td>
                         </tr>

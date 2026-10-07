@@ -31,6 +31,8 @@ Open **Egentify** in WP admin to customize:
 - **Widget appearance**: primary color, launcher position (bottom-right / bottom-left), side and bottom offsets, chat window corner radius
 - **Welcome message**: shown the first time a customer opens the chat. Use `{{agent_name}}` to insert the assistant's name.
 - **Starter buttons**: quick-reply buttons shown on first open. Up to 4 buttons, 40 characters each.
+- **Tooltips**: turn them on or off and set separate headings (40 characters) and messages (100 characters) for Home, Categories, Products, Cart/checkout, and Other pages. Blank fields keep the default wording.
+- **Shine effect**: turn the sweeping launcher shine on or off. Visitors who prefer reduced motion never see it animate.
 - **Auto-inject**: render the widget in `wp_footer` automatically (on by default). Disable if you want to use the `[egentify_chat_widget]` shortcode instead.
 
 Settings save to WordPress and apply on the next page load. Hard refresh to see changes immediately.

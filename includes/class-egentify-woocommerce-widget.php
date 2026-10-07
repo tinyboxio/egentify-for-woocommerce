@@ -131,6 +131,14 @@ final class Egentify_WooCommerce_Widget {
             $attributes['widget-welcome-text'] = (string) $settings['widget_welcome_text'];
         }
 
+        $attributes['data-tooltip-enabled'] = (string) $settings['widget_tooltip_enabled'];
+        $attributes['data-shine-enabled'] = (string) $settings['widget_shine_enabled'];
+        foreach (array('home', 'category', 'product', 'cart', 'fallback') as $page) {
+            foreach (array('heading', 'message') as $field) {
+                $attributes['data-tooltip-' . $page . '-' . $field] = (string) $settings['widget_tooltip_' . $page . '_' . $field];
+            }
+        }
+
         $this->rendered = true;
 
         return $this->build_widget_tag($attributes);

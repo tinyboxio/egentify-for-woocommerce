@@ -38,7 +38,7 @@ final class Egentify_WooCommerce_Settings {
             $signing_secret = '' !== $submitted_secret ? $submitted_secret : $existing_secret;
         }
 
-        return array(
+        $sanitized = array(
             'project_id' => sanitize_text_field($input['project_id'] ?? ''),
             'signing_secret' => $signing_secret,
             'primary_color' => sanitize_hex_color($input['primary_color'] ?? '') ?: '',
@@ -50,7 +50,20 @@ final class Egentify_WooCommerce_Settings {
             'widget_window_corner_radius' => $this->sanitize_widget_int($input['widget_window_corner_radius'] ?? '', 0, 30),
             'widget_starter_buttons' => $this->sanitize_widget_starter_buttons($input['widget_starter_buttons'] ?? array()),
             'widget_welcome_text' => $this->sanitize_widget_welcome_text($input['widget_welcome_text'] ?? ''),
+            'widget_tooltip_enabled' => in_array($input['widget_tooltip_enabled'] ?? $existing_settings['widget_tooltip_enabled'] ?? '1', array('1', 1, true, 'true'), true) ? '1' : '0',
+            'widget_shine_enabled' => in_array($input['widget_shine_enabled'] ?? $existing_settings['widget_shine_enabled'] ?? '1', array('1', 1, true, 'true'), true) ? '1' : '0',
         );
+
+        // The manual configuration form omits these fields. Preserve its saved tooltips.
+        foreach (array('home', 'category', 'product', 'cart', 'fallback') as $page) {
+            foreach (array('heading' => 40, 'message' => 100) as $field => $limit) {
+                $key = 'widget_tooltip_' . $page . '_' . $field;
+                $value = $input[$key] ?? $existing_settings[$key] ?? '';
+                $sanitized[$key] = is_string($value) ? mb_substr(sanitize_text_field($value), 0, $limit, 'UTF-8') : '';
+            }
+        }
+
+        return $sanitized;
     }
 
     public function get_settings() {
@@ -64,7 +77,7 @@ final class Egentify_WooCommerce_Settings {
     }
 
     public function get_defaults() {
-        return array(
+        $defaults = array(
             'project_id' => '',
             'signing_secret' => '',
             'primary_color' => '',
@@ -76,7 +89,14 @@ final class Egentify_WooCommerce_Settings {
             'widget_window_corner_radius' => '',
             'widget_starter_buttons' => array(),
             'widget_welcome_text' => '',
+            'widget_tooltip_enabled' => '1',
+            'widget_shine_enabled' => '1',
         );
+        foreach (array('home', 'category', 'product', 'cart', 'fallback') as $page) {
+            $defaults['widget_tooltip_' . $page . '_heading'] = '';
+            $defaults['widget_tooltip_' . $page . '_message'] = '';
+        }
+        return $defaults;
     }
 
     private function sanitize_widget_position($value): string {
