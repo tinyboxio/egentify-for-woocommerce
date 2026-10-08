@@ -983,7 +983,10 @@ final class Egentify_WooCommerce_Content_Search {
     }
 
     private function passes_filters(WP_Post $post, array $types) {
-        return 'publish' === $post->post_status && in_array($post->post_type, $types, true);
+        // These responses are publicly cacheable, even when the visitor has a password cookie.
+        return 'publish' === $post->post_status
+            && '' === $post->post_password
+            && in_array($post->post_type, $types, true);
     }
 
     private function format_post(WP_Post $post, array $match, $debug) {

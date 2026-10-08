@@ -24,8 +24,9 @@ final class Egentify_WooCommerce_Settings {
     }
 
     public function sanitize_settings($input) {
-        $input = is_array($input) ? $input : array();
-        $existing_settings = get_option(self::OPTION_KEY, array());
+        $existing_settings = $this->get_settings();
+        // Each form submits only its own fields. Keep the other saved settings.
+        $input = array_merge($existing_settings, is_array($input) ? $input : array());
         $existing_secret = '';
 
         if (is_array($existing_settings) && !empty($existing_settings['signing_secret'])) {
@@ -54,7 +55,6 @@ final class Egentify_WooCommerce_Settings {
             'widget_shine_enabled' => in_array($input['widget_shine_enabled'] ?? $existing_settings['widget_shine_enabled'] ?? '1', array('1', 1, true, 'true'), true) ? '1' : '0',
         );
 
-        // The manual configuration form omits these fields. Preserve its saved tooltips.
         foreach (array('home', 'category', 'product', 'cart', 'fallback') as $page) {
             foreach (array('heading' => 40, 'message' => 100) as $field => $limit) {
                 $key = 'widget_tooltip_' . $page . '_' . $field;

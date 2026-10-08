@@ -20,6 +20,11 @@ final class Egentify_WooCommerce_Admin {
         add_action('admin_init', array($this->settings, 'register_setting_definition'));
         add_action('admin_menu', array($this, 'register_admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
+        add_filter('option_page_capability_' . Egentify_WooCommerce_Settings::SETTINGS_GROUP, array($this, 'settings_page_capability'));
+    }
+
+    public function settings_page_capability($capability) {
+        return 'manage_woocommerce';
     }
 
     public function register_admin_menu() {
@@ -343,7 +348,10 @@ final class Egentify_WooCommerce_Admin {
                         <?php endforeach; ?>
                         <tr>
                             <th scope="row"><?php echo esc_html__('Auto Inject Widget', 'egentify-for-woocommerce'); ?></th>
-                            <td><label><input name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[auto_inject]" type="checkbox" value="1" <?php checked($settings['auto_inject'], '1'); ?>> <?php echo esc_html__('Render the widget automatically in wp_footer.', 'egentify-for-woocommerce'); ?></label></td>
+                            <td>
+                                <input type="hidden" name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[auto_inject]" value="0">
+                                <label><input name="<?php echo esc_attr(Egentify_WooCommerce_Settings::OPTION_KEY); ?>[auto_inject]" type="checkbox" value="1" <?php checked($settings['auto_inject'], '1'); ?>> <?php echo esc_html__('Render the widget automatically in wp_footer.', 'egentify-for-woocommerce'); ?></label>
+                            </td>
                         </tr>
                 </table>
                     <?php submit_button(); ?>

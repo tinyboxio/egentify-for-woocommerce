@@ -3,17 +3,17 @@
  * Plugin Name: Egentify for WooCommerce
  * Plugin URI: https://github.com/tinyboxio/egentify-for-woocommerce
  * Description: AI-powered customer support widget for WooCommerce. Connects your store to Egentify for chat, voice, and ticketing.
- * Version: 1.1.1
+ * Version: 1.2.0
  * Author: Egentify
  * Author URI: https://egentify.com
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Requires PHP: 7.4
  * Requires at least: 6.4
- * Tested up to: 7.0
+ * Tested up to: 7.1
  * Requires Plugins: woocommerce
  * WC requires at least: 8.0
- * WC tested up to: 10.9
+ * WC tested up to: 11.2
  * Text Domain: egentify-for-woocommerce
  */
 
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('EGENTIFY_WOOCOMMERCE_VERSION', '1.1.1');
+define('EGENTIFY_WOOCOMMERCE_VERSION', '1.2.0');
 define('EGENTIFY_WOOCOMMERCE_PLUGIN_FILE', __FILE__);
 define('EGENTIFY_WOOCOMMERCE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 

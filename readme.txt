@@ -2,9 +2,9 @@
 Contributors: egentify
 Tags: woocommerce, chatbot, live chat, customer support, helpdesk
 Requires at least: 6.4
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.1
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -144,6 +144,13 @@ Just the connection details: your Egentify project ID, the security keys used to
 
 == Changelog ==
 
+= 1.2.0 =
+* New: turn widget tooltips on or off and customize headings and messages for Home, Categories, Products, Cart/checkout, and Other pages. Blank fields use the default text.
+* New: turn the launcher shine effect on or off. The animation respects visitors' reduced-motion preference.
+* Fixed: saving Manual Configuration preserves existing widget settings.
+* Fixed: Shop Managers can save plugin settings.
+* Security improvements.
+
 = 1.1.1 =
 * Fixed: product and content search now work in Greek, Russian, Hebrew, Arabic, and other non-Latin languages. Searches match with or without accents and letterform variants.
 
@@ -154,6 +161,9 @@ Just the connection details: your Egentify project ID, the security keys used to
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Adds customizable tooltips and shine controls, fixes settings saves, and includes security improvements.
 
 = 1.1.0 =
 Adds chat revenue tracking to your Egentify dashboard.
